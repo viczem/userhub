@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+package userhub.identity.v1;
+
+option go_package = "github.com/viczem/userhub/shared/gen/go/userhub/identity/v1;identityv1";
+
+// IdentityService reserves the versioned service namespace. RPC methods are
+// introduced by behavioral changes owned by Identity.
+service IdentityService {}

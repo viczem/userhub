@@ -1,0 +1,36 @@
+version: "3"
+
+vars:
+  IDENTITY_IMAGE: '{{default "userhub/identity:dev" .IDENTITY_IMAGE}}'
+  ROOT_DIR: "{{.TASKFILE_DIR}}/../.."
+
+tasks:
+  build:
+    desc: Build Identity packages
+    dir: "{{.TASKFILE_DIR}}"
+    cmds:
+      - go build ./...
+
+  test:
+    desc: Test Identity packages
+    dir: "{{.TASKFILE_DIR}}"
+    cmds:
+      - go test ./...
+
+  verify:
+    desc: Verify the Identity module
+    deps:
+      - test
+    dir: "{{.TASKFILE_DIR}}"
+    cmds:
+      - go mod tidy -diff
+      - go vet ./...
+
+  image:
+    desc: Build the Identity container image
+    cmds:
+      - >-
+        docker build
+        --file "{{.TASKFILE_DIR}}/Dockerfile"
+        --tag "{{.IDENTITY_IMAGE}}"
+        "{{.ROOT_DIR}}"

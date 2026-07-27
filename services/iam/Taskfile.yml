@@ -1,0 +1,36 @@
+version: "3"
+
+vars:
+  IAM_IMAGE: '{{default "userhub/iam:dev" .IAM_IMAGE}}'
+  ROOT_DIR: "{{.TASKFILE_DIR}}/../.."
+
+tasks:
+  build:
+    desc: Build IAM packages
+    dir: "{{.TASKFILE_DIR}}"
+    cmds:
+      - go build ./...
+
+  test:
+    desc: Test IAM packages
+    dir: "{{.TASKFILE_DIR}}"
+    cmds:
+      - go test ./...
+
+  verify:
+    desc: Verify the IAM module
+    deps:
+      - test
+    dir: "{{.TASKFILE_DIR}}"
+    cmds:
+      - go mod tidy -diff
+      - go vet ./...
+
+  image:
+    desc: Build the IAM container image
+    cmds:
+      - >-
+        docker build
+        --file "{{.TASKFILE_DIR}}/Dockerfile"
+        --tag "{{.IAM_IMAGE}}"
+        "{{.ROOT_DIR}}"

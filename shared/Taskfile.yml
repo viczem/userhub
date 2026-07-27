@@ -1,0 +1,58 @@
+version: "3"
+
+vars:
+  BUF_IMAGE: bufbuild/buf:1.57.0@sha256:d9cee7f08a83dafcaa3b98660084a6de759bf57d98291d8806d1f9773b2b97b3
+
+tasks:
+  test:
+    desc: Test shared Go contract bindings
+    dir: "{{.TASKFILE_DIR}}"
+    cmds:
+      - go test ./...
+
+  lint:
+    desc: Lint protobuf contracts
+    cmds:
+      - >-
+        docker run --rm
+        --user "$(id -u):$(id -g)"
+        --env BUF_CACHE_DIR=/tmp/buf
+        --volume "{{.TASKFILE_DIR}}:/workspace:ro"
+        --workdir /workspace
+        {{.BUF_IMAGE}} lint
+
+  generate:
+    desc: Generate Go protobuf and gRPC bindings
+    cmds:
+      - >-
+        docker run --rm
+        --user "$(id -u):$(id -g)"
+        --env BUF_CACHE_DIR=/tmp/buf
+        --volume "{{.TASKFILE_DIR}}:/workspace"
+        --workdir /workspace
+        {{.BUF_IMAGE}} generate
+
+  verify-generated:
+    desc: Verify committed bindings match protobuf sources
+    cmds:
+      - |
+        tmp_dir="$(mktemp -d)"
+        trap 'rm -rf "$tmp_dir"' EXIT
+        docker run --rm \
+          --user "$(id -u):$(id -g)" \
+          --env BUF_CACHE_DIR=/tmp/buf \
+          --volume "{{.TASKFILE_DIR}}:/workspace:ro" \
+          --volume "$tmp_dir:/output" \
+          --workdir /workspace \
+          {{.BUF_IMAGE}} generate --output /output
+        diff -ru "{{.TASKFILE_DIR}}/gen/go" "$tmp_dir/gen/go"
+
+  verify:
+    desc: Verify shared contracts and generated bindings
+    deps:
+      - lint
+      - test
+      - verify-generated
+    dir: "{{.TASKFILE_DIR}}"
+    cmds:
+      - go mod tidy -diff

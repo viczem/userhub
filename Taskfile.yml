@@ -1,0 +1,66 @@
+version: "3"
+
+includes:
+  iam:
+    taskfile: ./services/iam/Taskfile.yml
+  identity:
+    taskfile: ./services/identity/Taskfile.yml
+  shared:
+    taskfile: ./shared/Taskfile.yml
+
+tasks:
+  default:
+    desc: List available tasks
+    cmds:
+      - task --list
+
+  build:
+    desc: Build all services
+    deps:
+      - iam:build
+      - identity:build
+
+  test:
+    desc: Test all modules
+    deps:
+      - iam:test
+      - identity:test
+      - shared:test
+
+  generate:
+    desc: Generate repository artifacts
+    cmds:
+      - task: shared:generate
+
+  verify-boundaries:
+    desc: Verify services do not import each other's implementation
+    cmds:
+      - |
+        if go list -deps ./services/iam/... | grep -Eq '^github.com/viczem/userhub/services/identity($|/)'; then
+          echo "IAM must not import Identity implementation packages" >&2
+          exit 1
+        fi
+        if go list -deps ./services/identity/... | grep -Eq '^github.com/viczem/userhub/services/iam($|/)'; then
+          echo "Identity must not import IAM implementation packages" >&2
+          exit 1
+        fi
+
+  verify-workspace:
+    desc: Verify workspace module resolution
+    cmds:
+      - go list -m
+
+  verify:
+    desc: Verify all modules, generated artifacts, and service boundaries
+    deps:
+      - iam:verify
+      - identity:verify
+      - shared:verify
+      - verify-boundaries
+      - verify-workspace
+
+  images:
+    desc: Build all service images
+    deps:
+      - iam:image
+      - identity:image
