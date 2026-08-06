@@ -1,0 +1,64 @@
+# For development use only
+name: userhub
+
+services:
+  postgres:
+    image: postgres:18-alpine
+    shm_size: 128mb
+    environment:
+      POSTGRES_USER: userhub
+      POSTGRES_PASSWORD: userhub
+      POSTGRES_DB: userhub
+    volumes:
+      - pgdata:/var/lib/postgresql
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1m"
+        max-file: "1"
+    ports:
+      - "5432:5432"
+    networks:
+      userhub:
+        ipv4_address: 172.18.4.2
+
+  pgbouncer:
+    image: "edoburu/pgbouncer:v1.25.2-p0"
+    environment:
+      DB_USER: userhub
+      DB_PASSWORD: userhub
+      DB_HOST: postgres
+      DB_NAME: userhub
+      AUTH_TYPE: scram-sha-256
+      POOL_MODE: transaction
+      MAX_PREPARED_STATEMENTS: 20
+      MAX_CLIENT_CONN: 10
+      DEFAULT_POOL_SIZE: 2
+      MIN_POOL_SIZE: 1
+      QUERY_TIMEOUT: 5
+      CLIENT_LOGIN_TIMEOUT: 2
+      IDLE_TRANSACTION_TIMEOUT: 5
+      QUERY_WAIT_TIMEOUT: 2
+    depends_on:
+      - postgres
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1m"
+        max-file: "1"
+    ports:
+      - "6432:6432"
+    networks:
+      userhub:
+        ipv4_address: 172.18.4.3
+
+networks:
+  userhub:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.18.4.0/24
+          gateway: 172.18.4.1
+
+volumes:
+  pgdata:
