@@ -10,17 +10,24 @@ import (
 	"github.com/Oudwins/zog/zenv"
 )
 
-const defaultHTTPAddr = ":8080"
+const (
+	appEnvIssueCode = "invalid_app_env"
+	defaultAppEnv   = "production"
+	defaultHTTPAddr = ":8080"
+)
 
 var (
+	errAppEnv   = errors.New("invalid environment variable APP_ENV: must be production or development")
 	errHTTPAddr = errors.New("invalid environment variable HTTP_ADDR: must be a valid TCP listen address with a numeric port between 1 and 65535")
 	schema      = z.Struct(z.Shape{
+		"AppEnv":   z.String().Default(defaultAppEnv).TestFunc(validAppEnv, z.IssueCode(appEnvIssueCode)),
 		"HTTPAddr": z.String().Default(defaultHTTPAddr).TestFunc(validHTTPAddr),
 	})
 )
 
 // Config contains Identity runtime settings.
 type Config struct {
+	AppEnv   string `env:"APP_ENV"`
 	HTTPAddr string `env:"HTTP_ADDR"`
 }
 
@@ -28,10 +35,19 @@ type Config struct {
 func Load() (Config, error) {
 	var cfg Config
 	if issues := schema.Parse(zenv.NewDataProvider(), &cfg); issues != nil {
+		for _, issue := range issues {
+			if issue.Code == appEnvIssueCode {
+				return Config{}, errAppEnv
+			}
+		}
 		return Config{}, errHTTPAddr
 	}
 
 	return cfg, nil
+}
+
+func validAppEnv(value *string, _ z.Ctx) bool {
+	return *value == "production" || *value == "development"
 }
 
 func validHTTPAddr(value *string, _ z.Ctx) bool {

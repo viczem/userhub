@@ -12,7 +12,7 @@ RUN go -C shared mod download
 COPY services/iam services/iam
 COPY shared shared
 
-RUN CGO_ENABLED=0 go build -trimpath -ldflags="-s -w" -o /out/iam ./services/iam/cmd/iam
+RUN CGO_ENABLED=0 go build -trimpath -ldflags="-s -w" -o /out/iam ./services/iam/cmd
 
 FROM scratch
 
@@ -20,3 +20,4 @@ USER 65532:65532
 COPY --from=build /out/iam /iam
 
 ENTRYPOINT ["/iam"]
+CMD ["start"]

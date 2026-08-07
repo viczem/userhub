@@ -1,34 +1,54 @@
 package config
 
 import (
-	"errors"
 	"net"
 	"strconv"
 	"strings"
+	"time"
 
 	z "github.com/Oudwins/zog"
 	"github.com/Oudwins/zog/zenv"
 )
 
-const defaultHTTPAddr = ":8080"
+const (
+	defaultHTTPAddr   = ":8080"
+	AppEnvDevelopment = "development"
+	AppEnvProduction  = "production"
+)
 
 var (
-	errHTTPAddr = errors.New("invalid environment variable HTTP_ADDR: must be a valid TCP listen address with a numeric port between 1 and 65535")
-	schema      = z.Struct(z.Shape{
-		"HTTPAddr": z.String().Default(defaultHTTPAddr).TestFunc(validHTTPAddr),
+	schema = z.Struct(z.Shape{
+		"AppEnv":                      z.String().OneOf([]string{"production", "development"}).Default(AppEnvProduction),
+		"HTTPAddr":                    z.String().Default(defaultHTTPAddr).TestFunc(validHTTPAddr),
+		"HTTPMaxHeaderBytes":          z.Int().Default(16 << 10).GTE(4 << 10),
+		"HTTPMaxBodyBytes":            z.Int().Default(64 << 10).GTE(8 << 10),
+		"HTTPWriteTimeout":            durationSchema(10 * time.Second),
+		"HTTPReadTimeout":             durationSchema(5 * time.Second),
+		"HTTPReadHeaderTimeout":       durationSchema(2 * time.Second),
+		"HTTPIdleTimeout":             durationSchema(30 * time.Second),
+		"HTTPGracefulShutdownTimeout": durationSchema(30 * time.Second),
 	})
 )
 
 // Config contains IAM runtime settings.
 type Config struct {
-	HTTPAddr string `env:"HTTP_ADDR"`
+	AppEnv                      string        `env:"APP_ENV"`
+	HTTPAddr                    string        `env:"HTTP_ADDR"`
+	HTTPMaxHeaderBytes          int           `env:"HTTP_MAX_HEADER_BYTES"`
+	HTTPMaxBodyBytes            int           `env:"HTTP_MAX_BODY_BYTES"`
+	HTTPWriteTimeout            time.Duration `env:"HTTP_WRITE_TIMEOUT"`
+	HTTPReadTimeout             time.Duration `env:"HTTP_READ_TIMEOUT"`
+	HTTPReadHeaderTimeout       time.Duration `env:"HTTP_READ_HEADER_TIMEOUT"`
+	HTTPIdleTimeout             time.Duration `env:"HTTP_IDLE_TIMEOUT"`
+	HTTPGracefulShutdownTimeout time.Duration `env:"HTTP_GRACEFUL_SHUTDOWN_TIMEOUT"`
 }
 
-// Load parses and validates IAM configuration from the environment.
-func Load() (Config, error) {
-	var cfg Config
-	if issues := schema.Parse(zenv.NewDataProvider(), &cfg); issues != nil {
-		return Config{}, errHTTPAddr
+// NewConfig parses and validates IAM configuration from the environment.
+func NewConfig() (*Config, error) {
+	cfg := &Config{}
+
+	if errs := schema.Parse(zenv.NewDataProvider(), cfg); errs != nil {
+		return nil, newError(z.Issues.Prettify(errs))
 	}
 
 	return cfg, nil
