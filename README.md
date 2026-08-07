@@ -40,6 +40,13 @@ not depend on reading Identity.
 | --- | --- | --- | --- |
 | `APP_ENV` | no | Application runtime environment | Defaults to `production`; allowed values: `production`, `development` |
 | `HTTP_ADDR` | no | HTTP listen address | Defaults to `:8080`; example: `127.0.0.1:9000` |
+| `HTTP_MAX_HEADER_BYTES` | no | Maximum HTTP request header size | Defaults to `16384`; minimum `4096` bytes |
+| `HTTP_MAX_BODY_BYTES` | no | Maximum buffered HTTP request body size | Defaults to `65536`; minimum `8192` bytes; oversized bodies receive `413` |
+| `HTTP_WRITE_TIMEOUT` | no | Maximum time for writing an HTTP response | Defaults to `10s`; minimum `1s` |
+| `HTTP_READ_TIMEOUT` | no | Maximum time for reading an HTTP request | Defaults to `5s`; minimum `1s` |
+| `HTTP_READ_HEADER_TIMEOUT` | no | Maximum time for reading HTTP request headers | Defaults to `2s`; minimum `1s` |
+| `HTTP_IDLE_TIMEOUT` | no | Maximum keep-alive idle time | Defaults to `30s`; minimum `1s` |
+| `HTTP_GRACEFUL_SHUTDOWN_TIMEOUT` | no | Maximum graceful HTTP shutdown time | Defaults to `30s`; minimum `1s` |
 
 ## Repository Layout
 
