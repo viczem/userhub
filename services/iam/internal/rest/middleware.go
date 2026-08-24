@@ -19,19 +19,27 @@ func maxBodyBytesMiddleware(maxBodyBytes int) func(next http.Handler) http.Handl
 				return
 			}
 
-			defer r.Body.Close()
+			defer func() {
+				if err := r.Body.Close(); err != nil {
+					slog.Default().Error("close request body", "error", err)
+				}
+			}()
 
 			body, err := io.ReadAll(http.MaxBytesReader(w, r.Body, int64(maxBodyBytes)))
 			if err != nil {
-				var maxBytesError *http.MaxBytesError
-				if errors.As(err, &maxBytesError) {
+				if maxBytesError, ok := errors.AsType[*http.MaxBytesError](err); ok {
+					slog.Default().Error("max bytes", "error", maxBytesError)
 					http.Error(w, "request body too large", http.StatusRequestEntityTooLarge)
+
 					return
 				}
 
+				slog.Default().Error("invalid request body", "error", err)
 				http.Error(w, "invalid request body", http.StatusBadRequest)
+
 				return
 			}
+
 			r.Body = io.NopCloser(bytes.NewReader(body))
 			next.ServeHTTP(w, r)
 		})

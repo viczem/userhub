@@ -2,6 +2,7 @@
 package rest
 
 import (
+	"context"
 	"log/slog"
 	"net/http"
 
@@ -11,7 +12,7 @@ import (
 )
 
 // NewREST returns a chi router.
-func NewREST(cfg *config.Config, logger *slog.Logger) *chi.Mux {
+func NewREST(cfg *config.Config, logger *slog.Logger, readiness func(context.Context) error) *chi.Mux {
 	r := chi.NewRouter()
 	r.Use(middleware.RequestID)
 
@@ -28,9 +29,25 @@ func NewREST(cfg *config.Config, logger *slog.Logger) *chi.Mux {
 	r.Use(middleware.NoCache)
 	r.Use(maxBodyBytesMiddleware(cfg.HTTPMaxBodyBytes))
 	r.Use(middleware.Heartbeat("/health/live"))
+	r.Get("/health/ready", func(w http.ResponseWriter, r *http.Request) {
+		if readiness == nil || readiness(r.Context()) != nil {
+			w.WriteHeader(http.StatusServiceUnavailable)
+			return
+		}
 
-	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("Hello, World!"))
+		w.WriteHeader(http.StatusOK)
+
+		if _, err := w.Write([]byte(".")); err != nil {
+			logger.Error("write", "error", err)
+			return
+		}
+	})
+
+	r.Get("/", func(w http.ResponseWriter, _ *http.Request) {
+		if _, err := w.Write([]byte("Hello, World!")); err != nil {
+			logger.Error("write", "error", err)
+			return
+		}
 	})
 
 	return r

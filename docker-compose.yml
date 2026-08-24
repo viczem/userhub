@@ -47,7 +47,7 @@ services:
         max-size: "1m"
         max-file: "1"
     ports:
-      - "6432:6432"
+      - "6432:5432"
     networks:
       userhub:
         ipv4_address: 172.18.4.3

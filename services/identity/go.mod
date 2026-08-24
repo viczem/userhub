@@ -1,6 +1,6 @@
 module github.com/viczem/userhub/services/identity
 
-go 1.26.5
+go 1.27.0
 
 require (
 	github.com/Oudwins/zog v0.22.2

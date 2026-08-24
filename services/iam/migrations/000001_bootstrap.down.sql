@@ -1,0 +1,1 @@
+-- IAM bootstrap migration currently has no schema objects to remove.

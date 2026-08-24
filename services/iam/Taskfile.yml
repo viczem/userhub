@@ -26,6 +26,31 @@ tasks:
       - go mod tidy -diff
       - go vet ./...
 
+  migration-create:
+    desc: Create the next sequential IAM migration pair (NAME=example_name)
+    dir: "{{.TASKFILE_DIR}}"
+    requires:
+      vars:
+        - NAME
+    cmds:
+      - go run ./migrations/cmd.go create "{{.NAME}}"
+
+  migration-up:
+    desc: Apply all pending IAM migrations (requires DB_URL in the environment)
+    dir: "{{.TASKFILE_DIR}}"
+    dotenv:
+      - "{{.TASKFILE_DIR}}/.env"
+    cmds:
+      - go run ./migrations/cmd.go up
+
+  migration-down:
+    desc: Roll back the latest IAM migration (requires DB_URL in the environment)
+    dir: "{{.TASKFILE_DIR}}"
+    dotenv:
+      - "{{.TASKFILE_DIR}}/.env"
+    cmds:
+      - go run ./migrations/cmd.go down
+
   image:
     desc: Build the IAM container image
     cmds:

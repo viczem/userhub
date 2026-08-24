@@ -1,3 +1,6 @@
+// Package config loads and validates application configuration.
+// Configuration is provided exclusively through environment variables, which
+// are documented in the README.
 package config
 
 import (
@@ -11,9 +14,13 @@ import (
 )
 
 const (
-	defaultHTTPAddr   = ":8080"
+	defaultHTTPAddr       = ":8080"
+	defaultDBMaxOpenConns = 20
+	defaultDBMinConns     = 2
+	// AppEnvDevelopment is the development application environment.
 	AppEnvDevelopment = "development"
-	AppEnvProduction  = "production"
+	// AppEnvProduction is the production application environment.
+	AppEnvProduction = "production"
 )
 
 var (
@@ -27,6 +34,12 @@ var (
 		"HTTPReadHeaderTimeout":       durationSchema(2 * time.Second),
 		"HTTPIdleTimeout":             durationSchema(30 * time.Second),
 		"HTTPGracefulShutdownTimeout": durationSchema(30 * time.Second),
+		"DBDirectURL":                 z.String().Required(),
+		"DBPoolURL":                   z.String().Optional(),
+		"DBMaxOpenConns":              z.Int().Default(defaultDBMaxOpenConns).GTE(1).LTE(1<<31 - 1),
+		"DBMinConns":                  z.Int().Default(defaultDBMinConns).GTE(0).LTE(1<<31 - 1),
+		"DBConnMaxLifetime":           nonNegativeDurationSchema(0),
+		"DBConnMaxIdleTime":           nonNegativeDurationSchema(0),
 	})
 )
 
@@ -41,6 +54,12 @@ type Config struct {
 	HTTPReadHeaderTimeout       time.Duration `env:"HTTP_READ_HEADER_TIMEOUT"`
 	HTTPIdleTimeout             time.Duration `env:"HTTP_IDLE_TIMEOUT"`
 	HTTPGracefulShutdownTimeout time.Duration `env:"HTTP_GRACEFUL_SHUTDOWN_TIMEOUT"`
+	DBDirectURL                 string        `env:"DB_URL"`
+	DBPoolURL                   string        `env:"DB_URL_POOL"`
+	DBConnMaxLifetime           time.Duration `env:"DB_CONN_MAX_LIFETIME"`
+	DBConnMaxIdleTime           time.Duration `env:"DB_CONN_MAX_IDLE_TIME"`
+	DBMaxOpenConns              int           `env:"DB_MAX_OPEN_CONNS"`
+	DBMinConns                  int           `env:"DB_MIN_CONNS"`
 }
 
 // NewConfig parses and validates IAM configuration from the environment.
@@ -49,6 +68,10 @@ func NewConfig() (*Config, error) {
 
 	if errs := schema.Parse(zenv.NewDataProvider(), cfg); errs != nil {
 		return nil, newError(z.Issues.Prettify(errs))
+	}
+
+	if cfg.DBMinConns > cfg.DBMaxOpenConns {
+		return nil, newError("DB_MIN_CONNS must be less than or equal to DB_MAX_OPEN_CONNS")
 	}
 
 	return cfg, nil
@@ -61,6 +84,7 @@ func validHTTPAddr(value *string, _ z.Ctx) bool {
 	}
 
 	port, err := strconv.Atoi(portText)
+
 	return err == nil && port >= 1 && port <= 65535
 }
 
@@ -78,6 +102,7 @@ func validHost(host string) bool {
 		if label == "" || len(label) > 63 || label[0] == '-' || label[len(label)-1] == '-' {
 			return false
 		}
+
 		for _, char := range label {
 			if (char < 'a' || char > 'z') && (char < 'A' || char > 'Z') &&
 				(char < '0' || char > '9') && char != '-' {

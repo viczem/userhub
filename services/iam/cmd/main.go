@@ -1,3 +1,4 @@
+// Package main provides the command-line interface for the IAM service.
 package main
 
 import (
@@ -7,6 +8,7 @@ import (
 
 	"github.com/urfave/cli/v3"
 	"github.com/viczem/userhub/services/iam/internal/config"
+	"github.com/viczem/userhub/services/iam/migrations"
 )
 
 func main() {
@@ -30,8 +32,15 @@ func main() {
 			{
 				Name:  "start",
 				Usage: "run the service",
-				Action: func(ctx context.Context, cmd *cli.Command) error {
+				Action: func(_ context.Context, _ *cli.Command) error {
 					return start(cfg, logger)
+				},
+			},
+			{
+				Name:  "migrate",
+				Usage: "apply pending database migrations; migrations are forward-only",
+				Action: func(_ context.Context, _ *cli.Command) error {
+					return migrations.Up(cfg.DBDirectURL)
 				},
 			},
 		},
