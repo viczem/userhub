@@ -26,11 +26,13 @@ migrations and start the service:
 
 ```sh
 task iam:migration-up
-cd services/iam
-go run ./cmd start
+task iam:dev
 ```
 
-The service listens on `:8080` by default.
+The development task loads `services/iam/.env`, starts the service in
+development mode, and rebuilds it after source files are saved. A build error
+is printed without stopping the watcher; the next source change retries the
+build. The service listens on `:8080` by default.
 
 ### Health Endpoints
 
@@ -39,14 +41,34 @@ The service listens on `:8080` by default.
 | `GET /health/live`  | Process liveness     |
 | `GET /health/ready` | PostgreSQL readiness |
 
+The `scratch` image includes an `iam healthcheck` command that converts the
+local readiness response into a process exit status. Docker deployments can
+invoke it from the running service container without adding `curl` or `wget`:
+
+```yaml
+healthcheck:
+  test: ["CMD", "/iam", "healthcheck"]
+  interval: 10s
+  timeout: 4s
+  retries: 5
+  start_period: 5s
+```
+
+The command requests `GET /health/ready` through the configured local HTTP
+port, has its own three-second deadline, and succeeds only for HTTP 200. Docker
+reports this result as container health; it does not by itself restart an
+unhealthy container or remove it from application traffic. Kubernetes should
+continue to use native HTTP readiness and liveness probes.
+
 ## Development Commands
 
-| Command           | Description                                 |
-| ----------------- | ------------------------------------------- |
-| `task iam:build`  | Build all IAM packages                      |
-| `task iam:test`   | Run IAM tests                               |
-| `task iam:verify` | Run tests, module checks, and `go vet`      |
-| `task iam:image`  | Build the `userhub/iam:dev` container image |
+| Command           | Description                                      |
+| ----------------- | ------------------------------------------------ |
+| `task iam:build`  | Build all IAM packages                           |
+| `task iam:test`   | Run IAM tests                                    |
+| `task iam:dev`    | Run IAM and reload it after source changes       |
+| `task iam:verify` | Run tests, module checks, and `go vet`           |
+| `task iam:image`  | Build the `userhub/iam:dev` container image      |
 
 ## Database Migrations
 
@@ -164,6 +186,5 @@ Example direct development URL:
 postgres://userhub:userhub@localhost:5432/userhub?sslmode=disable
 ```
 
-See the repository-level [`README.md`](../../README.md) and accepted
-[architecture decisions](../../docs/adr/README.md) for deployment context and
-service boundaries.
+See the repository-level [`README.md`](../../README.md) for deployment context
+and service boundaries.

@@ -17,6 +17,16 @@ tasks:
     cmds:
       - go test ./...
 
+  dev:
+    desc: Run IAM with automatic reload after source changes
+    dir: "{{.TASKFILE_DIR}}"
+    dotenv:
+      - "{{.TASKFILE_DIR}}/.env"
+    env:
+      APP_ENV: development
+    cmds:
+      - go tool air -c .air.toml
+
   verify:
     desc: Verify the IAM module
     deps:

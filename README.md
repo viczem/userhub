@@ -25,12 +25,7 @@ opaque, stable subject identifier.
 services/iam/       IAM service and documentation
 services/identity/  Identity service and documentation
 shared/             Versioned protobuf contracts and generated Go bindings
-docs/adr/           Architecture decision records
-openspec/           Behavioral specifications and proposed changes
 ```
-
-See the accepted [architecture decisions](docs/adr/README.md) for the rationale
-behind the service boundaries and deployment model.
 
 ## Development
 

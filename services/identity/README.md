@@ -58,6 +58,5 @@ Configuration is read from environment variables.
 | `HTTP_IDLE_TIMEOUT`              | no       | `30s`        | Keep-alive idle timeout; at least `1s`                      |
 | `HTTP_GRACEFUL_SHUTDOWN_TIMEOUT` | no       | `30s`        | Graceful shutdown timeout; at least `1s`                    |
 
-See the repository-level [`README.md`](../../README.md) and accepted
-[architecture decisions](../../docs/adr/README.md) for project context and
+See the repository-level [`README.md`](../../README.md) for project context and
 service boundaries.

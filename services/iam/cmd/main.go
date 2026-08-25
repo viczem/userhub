@@ -43,6 +43,13 @@ func main() {
 					return migrations.Up(cfg.DBDirectURL)
 				},
 			},
+			{
+				Name:  "healthcheck",
+				Usage: "probe local service readiness",
+				Action: func(ctx context.Context, _ *cli.Command) error {
+					return healthCheck(ctx, cfg.HTTPAddr)
+				},
+			},
 		},
 	}
 
