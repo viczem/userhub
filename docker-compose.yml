@@ -52,6 +52,20 @@ services:
       userhub:
         ipv4_address: 172.18.4.3
 
+  mail:
+    image: "axllent/mailpit:v1.31"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1m"
+        max-file: "1"
+    ports:
+      - "8025:8025" # web UI
+      - "1025:1025" # SMTP
+    networks:
+      userhub:
+        ipv4_address: 172.18.4.4
+
 networks:
   userhub:
     driver: bridge

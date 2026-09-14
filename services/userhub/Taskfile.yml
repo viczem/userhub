@@ -1,0 +1,77 @@
+version: "3"
+
+vars:
+  USERHUB_IMAGE: '{{default "userhub/userhub:dev" .USERHUB_IMAGE}}'
+  ROOT_DIR: "{{.TASKFILE_DIR}}/../.."
+
+tasks:
+  build:
+    desc: Build UserHub Service packages
+    dir: "{{.TASKFILE_DIR}}"
+    cmds:
+      - go build ./...
+
+  test:
+    desc: Test UserHub Service packages
+    dir: "{{.TASKFILE_DIR}}"
+    cmds:
+      - go test ./...
+
+  cmd:
+    desc: "Run UserHub CLI (usage: task userhub:cmd -- <arguments>)"
+    dir: "{{.TASKFILE_DIR}}"
+    dotenv:
+      - "{{.TASKFILE_DIR}}/.env"
+    cmds:
+      - go run ./cmd {{.CLI_ARGS}}
+
+  dev:
+    desc: Run UserHub Service with automatic reload after source changes
+    dir: "{{.TASKFILE_DIR}}"
+    env:
+      APP_ENV: development
+    cmds:
+      - go tool air -c .air.toml
+
+  verify:
+    desc: Verify the UserHub Service module
+    deps:
+      - test
+    dir: "{{.TASKFILE_DIR}}"
+    cmds:
+      - go mod tidy -diff
+      - go vet ./...
+
+  migration-create:
+    desc: Create the next sequential UserHub migration pair (NAME=example_name)
+    dir: "{{.TASKFILE_DIR}}"
+    requires:
+      vars:
+        - NAME
+    cmds:
+      - go run ./migrations/cmd.go create "{{.NAME}}"
+
+  migration-up:
+    desc: Apply all pending UserHub migrations (requires DB_URL in the environment)
+    dir: "{{.TASKFILE_DIR}}"
+    dotenv:
+      - "{{.TASKFILE_DIR}}/.env"
+    cmds:
+      - go run ./migrations/cmd.go up
+
+  migration-down:
+    desc: Roll back the latest UserHub migration (requires DB_URL in the environment)
+    dir: "{{.TASKFILE_DIR}}"
+    dotenv:
+      - "{{.TASKFILE_DIR}}/.env"
+    cmds:
+      - go run ./migrations/cmd.go down
+
+  image:
+    desc: Build the UserHub Service container image
+    cmds:
+      - >-
+        docker build
+        --file "{{.TASKFILE_DIR}}/Dockerfile"
+        --tag "{{.USERHUB_IMAGE}}"
+        "{{.ROOT_DIR}}"

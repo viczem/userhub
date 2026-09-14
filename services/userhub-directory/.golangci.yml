@@ -1,0 +1,31 @@
+version: "2"
+
+run:
+  timeout: 3m
+  tests: true
+
+linters:
+  default: standard
+
+  enable:
+    - revive
+    - govet
+    - errcheck
+    - staticcheck
+    - ineffassign
+    - testifylint
+    - whitespace
+    - wsl_v5
+
+  exclusions:
+    paths:
+      - ".*mock.*.go"
+
+  settings:
+    wsl_v5:
+      default: none
+      enable:
+        - err
+        - leading-whitespace
+        - trailing-whitespace
+        - decl

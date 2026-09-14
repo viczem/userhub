@@ -1,12 +1,10 @@
 version: "3"
 
 includes:
-  iam:
-    taskfile: ./services/iam/Taskfile.yml
-  identity:
-    taskfile: ./services/identity/Taskfile.yml
-  shared:
-    taskfile: ./shared/Taskfile.yml
+  userhub:
+    taskfile: ./services/userhub/Taskfile.yml
+  userhub-directory:
+    taskfile: ./services/userhub-directory/Taskfile.yml
 
 tasks:
   default:
@@ -15,52 +13,47 @@ tasks:
       - task --list
 
   build:
-    desc: Build all services
+    desc: Build UserHub Service and UserHub Directory
     deps:
-      - iam:build
-      - identity:build
+      - userhub:build
+      - userhub-directory:build
 
   test:
     desc: Test all modules
     deps:
-      - iam:test
-      - identity:test
-      - shared:test
-
-  generate:
-    desc: Generate repository artifacts
-    cmds:
-      - task: shared:generate
+      - userhub:test
+      - userhub-directory:test
 
   verify-boundaries:
-    desc: Verify services do not import each other's implementation
+    desc: Verify UserHub implementation boundaries
     cmds:
       - |
-        if go list -deps ./services/iam/... | grep -Eq '^github.com/viczem/userhub/services/identity($|/)'; then
-          echo "IAM must not import Identity implementation packages" >&2
+        if go list -deps ./services/userhub/... | grep -Eq '^github.com/viczem/userhub/services/(iam|identity)($|/)'; then
+          echo "UserHub Service must not import removed service implementations" >&2
           exit 1
         fi
-        if go list -deps ./services/identity/... | grep -Eq '^github.com/viczem/userhub/services/iam($|/)'; then
-          echo "Identity must not import IAM implementation packages" >&2
+      - |
+        if go list -deps ./services/userhub/... | grep -Eq '^github.com/viczem/userhub/services/userhub-directory/internal($|/)'; then
+          echo "UserHub Service must not import UserHub Directory implementation packages" >&2
           exit 1
         fi
 
   verify-workspace:
     desc: Verify workspace module resolution
     cmds:
-      - go list -m
+      - go list -m github.com/viczem/userhub/services/userhub
+      - go list -m github.com/viczem/userhub/services/userhub-directory
 
   verify:
-    desc: Verify all modules, generated artifacts, and service boundaries
+    desc: Verify the UserHub module and service boundaries
     deps:
-      - iam:verify
-      - identity:verify
-      - shared:verify
+      - userhub:verify
+      - userhub-directory:verify
       - verify-boundaries
       - verify-workspace
 
   images:
-    desc: Build all service images
+    desc: Build the UserHub Service and UserHub Directory images
     deps:
-      - iam:image
-      - identity:image
+      - userhub:image
+      - userhub-directory:image

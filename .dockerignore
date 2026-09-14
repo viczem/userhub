@@ -2,5 +2,3 @@
 !go.work
 !services/
 !services/**
-!shared/
-!shared/**
