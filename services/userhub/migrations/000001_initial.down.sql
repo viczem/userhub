@@ -1,3 +1,11 @@
+DROP TABLE email_outbox;
+DROP TABLE email_templates;
 DROP TABLE account_registrations;
+DROP TABLE account_roles;
+DROP TABLE roles;
+DROP TABLE sessions;
 DROP TABLE accounts;
+DROP TABLE locale_aliases;
+DROP TABLE locales;
 DROP TABLE otp;
+DROP TABLE runtime;
