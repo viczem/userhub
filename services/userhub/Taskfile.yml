@@ -12,7 +12,7 @@ tasks:
       - go build ./...
 
   mocks:
-    desc: Generate service test mocks with mockery v3
+    desc: Generate service and REST test mocks with mockery v3
     dir: "{{.TASKFILE_DIR}}"
     cmds:
       - mockery --config .mockery.yml

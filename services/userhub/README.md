@@ -37,7 +37,7 @@ Component commands available from the repository root:
 | ------------------------------------------------ | --------------------------------------------------------------------- |
 | `task userhub:build`                             | Build UserHub Service packages                                        |
 | `task userhub:test`                              | Run UserHub Service tests                                             |
-| `task userhub:mocks`                             | Regenerate service test mocks with installed mockery v3               |
+| `task userhub:mocks`                             | Regenerate service and REST test mocks with installed mockery v3      |
 | `task userhub:cmd -- <arguments>`                | Run UserHub CLI with `services/userhub/.env` from the repository root |
 | `task userhub:verify`                            | Run tests, module checks, and `go vet`                                |
 | `task userhub:image`                             | Build `userhub/userhub:dev` from the repository root context          |
@@ -45,12 +45,15 @@ Component commands available from the repository root:
 | `task userhub:migration-up`                      | Apply pending development migrations                                  |
 | `task userhub:migration-down`                    | Roll back one development migration                                   |
 
-Service unit tests use `stretchr/testify` assertions, mocks, and a shared
-`serviceSuite`. After changing the service-owned `Database` or `Repository`
-interfaces, run `task userhub:mocks` (or `task mocks` inside `services/userhub`).
-The service's `.mockery.yml` generates `internal/service/mocks_test.go`; keep
-this generated file in version control. Mockery v3 must be installed and on
-`PATH` to regenerate mocks, but is not required to run tests.
+Unit tests use `stretchr/testify` assertions and mocks, with separate
+`serviceSuite` and `restSuite` suites. REST tests exercise the HTTP handler with
+`httptest` and a mocked service, without a database or a running HTTP server.
+After changing the service-owned `Database` or `Repository` interfaces, or the
+REST-owned `service` interface, run `task userhub:mocks` (or `task mocks` inside
+`services/userhub`). The service's `.mockery.yml` generates
+`internal/service/mocks_test.go` and `internal/rest/mocks_test.go`; keep these
+generated files in version control. Mockery v3 must be installed and on `PATH`
+to regenerate mocks, but is not required to run tests.
 
 ## Health And Shutdown
 

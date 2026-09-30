@@ -18,6 +18,7 @@ type Repository interface {
 // Database starts transactions used by the service.
 type Database[R Repository] interface {
 	NewRepository(ctx context.Context) (R, error)
+	Ready() error
 }
 
 // Service provides domain operations using transactional repositories.

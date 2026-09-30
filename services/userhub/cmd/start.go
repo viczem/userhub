@@ -13,6 +13,7 @@ import (
 	"github.com/viczem/userhub/services/userhub/internal/config"
 	"github.com/viczem/userhub/services/userhub/internal/repository"
 	"github.com/viczem/userhub/services/userhub/internal/rest"
+	"github.com/viczem/userhub/services/userhub/internal/service"
 )
 
 func start(cfg *config.Config) error {
@@ -23,11 +24,13 @@ func start(cfg *config.Config) error {
 
 	defer db.Close()
 
-	if err := db.Ready(context.Background()); err != nil {
+	if err := db.Ready(); err != nil {
 		slog.Warn("database unavailable during startup", slog.String("tag", "database"))
 	}
 
-	router := rest.NewREST(cfg, db.Ready)
+	srv := service.NewService(cfg, db)
+	router := rest.NewREST(cfg, srv)
+
 	server := &http.Server{
 		Handler:           router,
 		Addr:              cfg.HTTP.Addr,

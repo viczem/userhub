@@ -11,12 +11,12 @@ const readinessTimeout = 2 * time.Second
 var errNotAcceptingWork = errors.New("service is not accepting work")
 
 // Ready reports whether the database can serve work before its deadline.
-func (db *Database) Ready(ctx context.Context) error {
+func (db *Database) Ready() error {
 	if !db.accepting.Load() {
 		return errNotAcceptingWork
 	}
 
-	ctx, cancel := context.WithTimeout(ctx, readinessTimeout)
+	ctx, cancel := context.WithTimeout(context.Background(), readinessTimeout)
 	defer cancel()
 
 	if err := db.ping(ctx); err != nil {
