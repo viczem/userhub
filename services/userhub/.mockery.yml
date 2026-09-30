@@ -1,0 +1,12 @@
+all: false
+dir: '{{.InterfaceDir}}'
+filename: mocks_test.go
+formatter: goimports
+pkgname: '{{.SrcPackageName}}'
+structname: 'Mock{{.InterfaceName}}'
+template: testify
+packages:
+  github.com/viczem/userhub/services/userhub/internal/service:
+    interfaces:
+      Database:
+      Repository:

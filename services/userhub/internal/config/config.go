@@ -7,6 +7,7 @@ import (
 
 	"github.com/caarlos0/env/v11"
 	"github.com/go-playground/validator/v10"
+	"github.com/viczem/userhub/services/userhub/internal/domain"
 )
 
 const (
@@ -14,6 +15,8 @@ const (
 	AppEnvDevelopment = "development"
 	// AppEnvProduction is the production application environment.
 	AppEnvProduction = "production"
+	// ErrConfig is the error kind for configuration errors.
+	ErrConfig domain.ErrorKind = "config"
 )
 
 // HTTPConfig contains HTTP server configuration.
@@ -34,17 +37,19 @@ type DBConfig struct {
 	PoolURL         string        `env:"URL_POOL"`
 	ConnMaxLifetime time.Duration `env:"CONN_MAX_LIFETIME" validate:"gte=0"`
 	ConnMaxIdleTime time.Duration `env:"CONN_MAX_IDLE_TIME" validate:"gte=0"`
-	MaxOpenConns    int           `env:"MAX_OPEN_CONNS" envDefault:"20" validate:"gte=1"`
-	MinConns        int           `env:"MIN_CONNS" envDefault:"2" validate:"gte=0,ltefield=MaxOpenConns"`
+	MaxOpenConns    int32         `env:"MAX_OPEN_CONNS" envDefault:"20" validate:"gte=1"`
+	MinConns        int32         `env:"MIN_CONNS" envDefault:"2" validate:"gte=0,ltefield=MaxOpenConns"`
 }
 
 // Config contains UserHub Service runtime settings.
 type Config struct {
-	AppEnv            string     `env:"APP_ENV" envDefault:"production" validate:"oneof=development production"`
-	DB                DBConfig   `envPrefix:"DB_"`
-	HTTP              HTTPConfig `envPrefix:"HTTP_"`
-	KeyringHMAC       Keyring    `env:"KEYRING_HMAC,required"`
-	KeyringEncryption Keyring    `env:"KEYRING_ENCRYPTION,required"`
+	AppEnv                   string         `env:"APP_ENV" envDefault:"production" validate:"oneof=development production"`
+	DB                       DBConfig       `envPrefix:"DB_"`
+	HTTP                     HTTPConfig     `envPrefix:"HTTP_"`
+	KeyringHMAC              domain.Keyring `env:"KEYRING_HMAC,required"`
+	KeyringEncryption        domain.Keyring `env:"KEYRING_ENCRYPTION,required"`
+	ConfigSessionIdleTimeout time.Duration  `env:"CONFIG_SESSION_IDLE_TIMEOUT" envDefault:"5m"`
+	ConfigSessionTTL         time.Duration  `env:"CONFIG_SESSION_TTL" envDefault:"30m"`
 }
 
 // NewConfig parses and validates UserHub Service configuration from the environment.
@@ -54,19 +59,19 @@ func NewConfig() (*Config, error) {
 		validate = validator.New()
 		options  = env.Options{
 			FuncMap: map[reflect.Type]env.ParserFunc{
-				reflect.TypeFor[Keyring](): func(v string) (any, error) {
-					return parseKeyring(v)
+				reflect.TypeFor[domain.Keyring](): func(v string) (any, error) {
+					return domain.NewKeyring(v)
 				},
 			},
 		}
 	)
 
 	if err := env.ParseWithOptions(&cfg, options); err != nil {
-		return nil, err
+		return nil, ErrConfig.WrapError(err, "parse env with options")
 	}
 
 	if err := validate.Struct(cfg); err != nil {
-		return nil, err
+		return nil, ErrConfig.WrapError(err, "validate struct")
 	}
 
 	return &cfg, nil

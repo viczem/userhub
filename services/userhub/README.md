@@ -37,12 +37,20 @@ Component commands available from the repository root:
 | ------------------------------------------------ | --------------------------------------------------------------------- |
 | `task userhub:build`                             | Build UserHub Service packages                                        |
 | `task userhub:test`                              | Run UserHub Service tests                                             |
+| `task userhub:mocks`                             | Regenerate service test mocks with installed mockery v3               |
 | `task userhub:cmd -- <arguments>`                | Run UserHub CLI with `services/userhub/.env` from the repository root |
 | `task userhub:verify`                            | Run tests, module checks, and `go vet`                                |
 | `task userhub:image`                             | Build `userhub/userhub:dev` from the repository root context          |
 | `task userhub:migration-create NAME=add_example` | Create the next migration pair                                        |
 | `task userhub:migration-up`                      | Apply pending development migrations                                  |
 | `task userhub:migration-down`                    | Roll back one development migration                                   |
+
+Service unit tests use `stretchr/testify` assertions, mocks, and a shared
+`serviceSuite`. After changing the service-owned `Database` or `Repository`
+interfaces, run `task userhub:mocks` (or `task mocks` inside `services/userhub`).
+The service's `.mockery.yml` generates `internal/service/mocks_test.go`; keep
+this generated file in version control. Mockery v3 must be installed and on
+`PATH` to regenerate mocks, but is not required to run tests.
 
 ## Health And Shutdown
 
@@ -78,8 +86,9 @@ replicas in one cell share PostgreSQL.
 
 ## Environment
 
-Runtime configuration is environment-only. Invalid values fail command startup
-with the variable name and constraint but without the supplied value.
+Runtime configuration is environment-only. Commands load only their required
+settings. Invalid values fail command startup without exposing the supplied
+value; configuration-session timing errors identify the variable and constraint.
 
 | Variable                         | Required | Default      | Purpose and constraint                                                                                                                |
 | -------------------------------- | -------- | ------------ | ------------------------------------------------------------------------------------------------------------------------------------- |
@@ -100,6 +109,8 @@ with the variable name and constraint but without the supplied value.
 | `DB_MIN_CONNS`                   | no       | `2`          | Minimum connections; nonnegative and no greater than maximum                                                                          |
 | `DB_CONN_MAX_LIFETIME`           | no       | `0`          | Maximum connection lifetime; `0` means unlimited                                                                                      |
 | `DB_CONN_MAX_IDLE_TIME`          | no       | `0`          | Maximum idle time; `0` means unlimited                                                                                                |
+| `CONFIG_SESSION_IDLE_TIMEOUT`    | no       | `5m`         | Positive Go duration for initial configuration-session inactivity; must not exceed `CONFIG_SESSION_TTL`                               |
+| `CONFIG_SESSION_TTL`             | no       | `30m`        | Positive Go duration for the configuration-session absolute lifetime; must be at least the inactivity timeout                         |
 
 ## Keyring Generation And Rotation
 
@@ -128,7 +139,7 @@ A keyring is a comma-separated list of entries:
 ```
 
 Exactly one positive ID is active for new values; negative IDs retain old keys
-for reads. IDs are stored as positive values in `*_key_id` metadata. Key IDs
+for reads. IDs are stored as positive values in `*_kid` metadata. Key IDs
 must not be `0`, `-32768`, or duplicate after removing their sign; material
 must be padded Base64URL decoding to 32 bytes.
 

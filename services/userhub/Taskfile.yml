@@ -11,11 +11,17 @@ tasks:
     cmds:
       - go build ./...
 
+  mocks:
+    desc: Generate service test mocks with mockery v3
+    dir: "{{.TASKFILE_DIR}}"
+    cmds:
+      - mockery --config .mockery.yml
+
   test:
     desc: Test UserHub Service packages
     dir: "{{.TASKFILE_DIR}}"
     cmds:
-      - go test ./...
+      - go test -count=1 ./...
 
   cmd:
     desc: "Run UserHub CLI (usage: task userhub:cmd -- <arguments>)"

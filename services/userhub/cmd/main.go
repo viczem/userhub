@@ -63,6 +63,32 @@ func newCommand(cfg *config.Config) *cli.Command {
 					return healthCheck(ctx, cfg.HTTP.Addr)
 				},
 			},
+			{
+				Name:  "runtime",
+				Usage: "manage service runtime",
+				Commands: []*cli.Command{
+					{
+						Name:  "session",
+						Usage: "manage temporary configuration sessions",
+						Commands: []*cli.Command{
+							{
+								Name:  "create",
+								Usage: "issue a temporary configuration session",
+								Action: func(_ context.Context, cmd *cli.Command) error {
+									return runtime(cfg, cmd.Name)
+								},
+							},
+							{
+								Name:  "delete",
+								Usage: "revoke the temporary configuration session",
+								Action: func(_ context.Context, cmd *cli.Command) error {
+									return runtime(cfg, cmd.Name)
+								},
+							},
+						},
+					},
+				},
+			},
 		},
 	}
 }
