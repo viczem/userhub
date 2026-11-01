@@ -6,19 +6,19 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
-	"github.com/go-playground/validator/v10"
+
 	"github.com/viczem/userhub/services/userhub/internal/config"
 )
 
 type service interface {
 	HealthReady() bool
+	configService
 }
 
 // REST exposes the UserHub service over HTTP.
 type REST struct {
-	router   *chi.Mux
-	srv      service
-	validate *validator.Validate
+	router *chi.Mux
+	srv    service
 }
 
 var _ http.Handler = (*REST)(nil)
@@ -26,11 +26,10 @@ var _ http.Handler = (*REST)(nil)
 // NewREST returns a chi router.
 func NewREST(cfg *config.Config, srv service) *REST {
 	api := &REST{
-		router:   chi.NewRouter(),
-		srv:      srv,
-		validate: validator.New(validator.WithRequiredStructEnabled()),
+		router: chi.NewRouter(),
+		srv:    srv,
 	}
-	api.router.Use(middleware.RequestID)
+	api.router.Use(requestIDMiddleware)
 
 	// TODO: Add a setting to configure where the user's IP address is obtained from.
 	// Currently assumes the server is running behind nginx.
@@ -48,6 +47,19 @@ func NewREST(cfg *config.Config, srv service) *REST {
 	api.router.Get("/health/live", api.live)
 	api.router.Get("/health/ready", api.ready)
 
+	api.router.Route("/api", func(r chi.Router) {
+		r.NotFound(func(w http.ResponseWriter, r *http.Request) {
+			writeJSON(w, r, http.StatusNotFound, nil)
+		})
+
+		r.Route("/config", func(r chi.Router) {
+			r.Use(validateConfigSessionMiddleware())
+			r.Get("/roles", api.readUsersRoles)
+			r.Post("/roles", api.createUsersRole)
+			r.Patch("/roles/{id}", api.updateUsersRole)
+			r.Delete("/roles/{id}", api.deleteUsersRole)
+		})
+	})
 	return api
 }
 

@@ -195,6 +195,72 @@ func (_c *MockRepository_CreateRuntimeSession_Call) RunAndReturn(run func(ctx co
 	return _c
 }
 
+// CreateUsersRole provides a mock function for the type MockRepository
+func (_mock *MockRepository) CreateUsersRole(ctx context.Context, role domain.UserRole) (domain.UserRole, error) {
+	ret := _mock.Called(ctx, role)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CreateUsersRole")
+	}
+
+	var r0 domain.UserRole
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.UserRole) (domain.UserRole, error)); ok {
+		return returnFunc(ctx, role)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.UserRole) domain.UserRole); ok {
+		r0 = returnFunc(ctx, role)
+	} else {
+		r0 = ret.Get(0).(domain.UserRole)
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, domain.UserRole) error); ok {
+		r1 = returnFunc(ctx, role)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockRepository_CreateUsersRole_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CreateUsersRole'
+type MockRepository_CreateUsersRole_Call struct {
+	*mock.Call
+}
+
+// CreateUsersRole is a helper method to define mock.On call
+//   - ctx context.Context
+//   - role domain.UserRole
+func (_e *MockRepository_Expecter) CreateUsersRole(ctx any, role any) *MockRepository_CreateUsersRole_Call {
+	return &MockRepository_CreateUsersRole_Call{Call: _e.mock.On("CreateUsersRole", ctx, role)}
+}
+
+func (_c *MockRepository_CreateUsersRole_Call) Run(run func(ctx context.Context, role domain.UserRole)) *MockRepository_CreateUsersRole_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 domain.UserRole
+		if args[1] != nil {
+			arg1 = args[1].(domain.UserRole)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockRepository_CreateUsersRole_Call) Return(userRole domain.UserRole, err error) *MockRepository_CreateUsersRole_Call {
+	_c.Call.Return(userRole, err)
+	return _c
+}
+
+func (_c *MockRepository_CreateUsersRole_Call) RunAndReturn(run func(ctx context.Context, role domain.UserRole) (domain.UserRole, error)) *MockRepository_CreateUsersRole_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // DeleteRuntimeSession provides a mock function for the type MockRepository
 func (_mock *MockRepository) DeleteRuntimeSession(ctx context.Context) error {
 	ret := _mock.Called(ctx)
@@ -246,6 +312,370 @@ func (_c *MockRepository_DeleteRuntimeSession_Call) RunAndReturn(run func(ctx co
 	return _c
 }
 
+// DeleteUsersRole provides a mock function for the type MockRepository
+func (_mock *MockRepository) DeleteUsersRole(ctx context.Context, roleID int32) error {
+	ret := _mock.Called(ctx, roleID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for DeleteUsersRole")
+	}
+
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, int32) error); ok {
+		r0 = returnFunc(ctx, roleID)
+	} else {
+		r0 = ret.Error(0)
+	}
+	return r0
+}
+
+// MockRepository_DeleteUsersRole_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'DeleteUsersRole'
+type MockRepository_DeleteUsersRole_Call struct {
+	*mock.Call
+}
+
+// DeleteUsersRole is a helper method to define mock.On call
+//   - ctx context.Context
+//   - roleID int32
+func (_e *MockRepository_Expecter) DeleteUsersRole(ctx any, roleID any) *MockRepository_DeleteUsersRole_Call {
+	return &MockRepository_DeleteUsersRole_Call{Call: _e.mock.On("DeleteUsersRole", ctx, roleID)}
+}
+
+func (_c *MockRepository_DeleteUsersRole_Call) Run(run func(ctx context.Context, roleID int32)) *MockRepository_DeleteUsersRole_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 int32
+		if args[1] != nil {
+			arg1 = args[1].(int32)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockRepository_DeleteUsersRole_Call) Return(err error) *MockRepository_DeleteUsersRole_Call {
+	_c.Call.Return(err)
+	return _c
+}
+
+func (_c *MockRepository_DeleteUsersRole_Call) RunAndReturn(run func(ctx context.Context, roleID int32) error) *MockRepository_DeleteUsersRole_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// ExistsUsersRole provides a mock function for the type MockRepository
+func (_mock *MockRepository) ExistsUsersRole(ctx context.Context, name string) (bool, error) {
+	ret := _mock.Called(ctx, name)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ExistsUsersRole")
+	}
+
+	var r0 bool
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) (bool, error)); ok {
+		return returnFunc(ctx, name)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) bool); ok {
+		r0 = returnFunc(ctx, name)
+	} else {
+		r0 = ret.Get(0).(bool)
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = returnFunc(ctx, name)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockRepository_ExistsUsersRole_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ExistsUsersRole'
+type MockRepository_ExistsUsersRole_Call struct {
+	*mock.Call
+}
+
+// ExistsUsersRole is a helper method to define mock.On call
+//   - ctx context.Context
+//   - name string
+func (_e *MockRepository_Expecter) ExistsUsersRole(ctx any, name any) *MockRepository_ExistsUsersRole_Call {
+	return &MockRepository_ExistsUsersRole_Call{Call: _e.mock.On("ExistsUsersRole", ctx, name)}
+}
+
+func (_c *MockRepository_ExistsUsersRole_Call) Run(run func(ctx context.Context, name string)) *MockRepository_ExistsUsersRole_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockRepository_ExistsUsersRole_Call) Return(b bool, err error) *MockRepository_ExistsUsersRole_Call {
+	_c.Call.Return(b, err)
+	return _c
+}
+
+func (_c *MockRepository_ExistsUsersRole_Call) RunAndReturn(run func(ctx context.Context, name string) (bool, error)) *MockRepository_ExistsUsersRole_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// LockUsersRoles provides a mock function for the type MockRepository
+func (_mock *MockRepository) LockUsersRoles(ctx context.Context) error {
+	ret := _mock.Called(ctx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for LockUsersRoles")
+	}
+
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context) error); ok {
+		r0 = returnFunc(ctx)
+	} else {
+		r0 = ret.Error(0)
+	}
+	return r0
+}
+
+// MockRepository_LockUsersRoles_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'LockUsersRoles'
+type MockRepository_LockUsersRoles_Call struct {
+	*mock.Call
+}
+
+// LockUsersRoles is a helper method to define mock.On call
+//   - ctx context.Context
+func (_e *MockRepository_Expecter) LockUsersRoles(ctx any) *MockRepository_LockUsersRoles_Call {
+	return &MockRepository_LockUsersRoles_Call{Call: _e.mock.On("LockUsersRoles", ctx)}
+}
+
+func (_c *MockRepository_LockUsersRoles_Call) Run(run func(ctx context.Context)) *MockRepository_LockUsersRoles_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		run(
+			arg0,
+		)
+	})
+	return _c
+}
+
+func (_c *MockRepository_LockUsersRoles_Call) Return(err error) *MockRepository_LockUsersRoles_Call {
+	_c.Call.Return(err)
+	return _c
+}
+
+func (_c *MockRepository_LockUsersRoles_Call) RunAndReturn(run func(ctx context.Context) error) *MockRepository_LockUsersRoles_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// ReadRuntimeSession provides a mock function for the type MockRepository
+func (_mock *MockRepository) ReadRuntimeSession(ctx context.Context) (*domain.RuntimeSession, error) {
+	ret := _mock.Called(ctx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ReadRuntimeSession")
+	}
+
+	var r0 *domain.RuntimeSession
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context) (*domain.RuntimeSession, error)); ok {
+		return returnFunc(ctx)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context) *domain.RuntimeSession); ok {
+		r0 = returnFunc(ctx)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*domain.RuntimeSession)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context) error); ok {
+		r1 = returnFunc(ctx)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockRepository_ReadRuntimeSession_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ReadRuntimeSession'
+type MockRepository_ReadRuntimeSession_Call struct {
+	*mock.Call
+}
+
+// ReadRuntimeSession is a helper method to define mock.On call
+//   - ctx context.Context
+func (_e *MockRepository_Expecter) ReadRuntimeSession(ctx any) *MockRepository_ReadRuntimeSession_Call {
+	return &MockRepository_ReadRuntimeSession_Call{Call: _e.mock.On("ReadRuntimeSession", ctx)}
+}
+
+func (_c *MockRepository_ReadRuntimeSession_Call) Run(run func(ctx context.Context)) *MockRepository_ReadRuntimeSession_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		run(
+			arg0,
+		)
+	})
+	return _c
+}
+
+func (_c *MockRepository_ReadRuntimeSession_Call) Return(runtimeSession *domain.RuntimeSession, err error) *MockRepository_ReadRuntimeSession_Call {
+	_c.Call.Return(runtimeSession, err)
+	return _c
+}
+
+func (_c *MockRepository_ReadRuntimeSession_Call) RunAndReturn(run func(ctx context.Context) (*domain.RuntimeSession, error)) *MockRepository_ReadRuntimeSession_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// ReadUsersRole provides a mock function for the type MockRepository
+func (_mock *MockRepository) ReadUsersRole(ctx context.Context, roleID int32) (domain.UserRole, error) {
+	ret := _mock.Called(ctx, roleID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ReadUsersRole")
+	}
+
+	var r0 domain.UserRole
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, int32) (domain.UserRole, error)); ok {
+		return returnFunc(ctx, roleID)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, int32) domain.UserRole); ok {
+		r0 = returnFunc(ctx, roleID)
+	} else {
+		r0 = ret.Get(0).(domain.UserRole)
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, int32) error); ok {
+		r1 = returnFunc(ctx, roleID)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockRepository_ReadUsersRole_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ReadUsersRole'
+type MockRepository_ReadUsersRole_Call struct {
+	*mock.Call
+}
+
+// ReadUsersRole is a helper method to define mock.On call
+//   - ctx context.Context
+//   - roleID int32
+func (_e *MockRepository_Expecter) ReadUsersRole(ctx any, roleID any) *MockRepository_ReadUsersRole_Call {
+	return &MockRepository_ReadUsersRole_Call{Call: _e.mock.On("ReadUsersRole", ctx, roleID)}
+}
+
+func (_c *MockRepository_ReadUsersRole_Call) Run(run func(ctx context.Context, roleID int32)) *MockRepository_ReadUsersRole_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 int32
+		if args[1] != nil {
+			arg1 = args[1].(int32)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockRepository_ReadUsersRole_Call) Return(userRole domain.UserRole, err error) *MockRepository_ReadUsersRole_Call {
+	_c.Call.Return(userRole, err)
+	return _c
+}
+
+func (_c *MockRepository_ReadUsersRole_Call) RunAndReturn(run func(ctx context.Context, roleID int32) (domain.UserRole, error)) *MockRepository_ReadUsersRole_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// ReadUsersRoles provides a mock function for the type MockRepository
+func (_mock *MockRepository) ReadUsersRoles(ctx context.Context) ([]domain.UserRole, error) {
+	ret := _mock.Called(ctx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ReadUsersRoles")
+	}
+
+	var r0 []domain.UserRole
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context) ([]domain.UserRole, error)); ok {
+		return returnFunc(ctx)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context) []domain.UserRole); ok {
+		r0 = returnFunc(ctx)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]domain.UserRole)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context) error); ok {
+		r1 = returnFunc(ctx)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockRepository_ReadUsersRoles_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ReadUsersRoles'
+type MockRepository_ReadUsersRoles_Call struct {
+	*mock.Call
+}
+
+// ReadUsersRoles is a helper method to define mock.On call
+//   - ctx context.Context
+func (_e *MockRepository_Expecter) ReadUsersRoles(ctx any) *MockRepository_ReadUsersRoles_Call {
+	return &MockRepository_ReadUsersRoles_Call{Call: _e.mock.On("ReadUsersRoles", ctx)}
+}
+
+func (_c *MockRepository_ReadUsersRoles_Call) Run(run func(ctx context.Context)) *MockRepository_ReadUsersRoles_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		run(
+			arg0,
+		)
+	})
+	return _c
+}
+
+func (_c *MockRepository_ReadUsersRoles_Call) Return(userRoles []domain.UserRole, err error) *MockRepository_ReadUsersRoles_Call {
+	_c.Call.Return(userRoles, err)
+	return _c
+}
+
+func (_c *MockRepository_ReadUsersRoles_Call) RunAndReturn(run func(ctx context.Context) ([]domain.UserRole, error)) *MockRepository_ReadUsersRoles_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // Rollback provides a mock function for the type MockRepository
 func (_mock *MockRepository) Rollback(ctx context.Context) error {
 	ret := _mock.Called(ctx)
@@ -293,6 +723,120 @@ func (_c *MockRepository_Rollback_Call) Return(err error) *MockRepository_Rollba
 }
 
 func (_c *MockRepository_Rollback_Call) RunAndReturn(run func(ctx context.Context) error) *MockRepository_Rollback_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// UpdateRuntimeSession provides a mock function for the type MockRepository
+func (_mock *MockRepository) UpdateRuntimeSession(ctx context.Context, session *domain.RuntimeSession) error {
+	ret := _mock.Called(ctx, session)
+
+	if len(ret) == 0 {
+		panic("no return value specified for UpdateRuntimeSession")
+	}
+
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *domain.RuntimeSession) error); ok {
+		r0 = returnFunc(ctx, session)
+	} else {
+		r0 = ret.Error(0)
+	}
+	return r0
+}
+
+// MockRepository_UpdateRuntimeSession_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdateRuntimeSession'
+type MockRepository_UpdateRuntimeSession_Call struct {
+	*mock.Call
+}
+
+// UpdateRuntimeSession is a helper method to define mock.On call
+//   - ctx context.Context
+//   - session *domain.RuntimeSession
+func (_e *MockRepository_Expecter) UpdateRuntimeSession(ctx any, session any) *MockRepository_UpdateRuntimeSession_Call {
+	return &MockRepository_UpdateRuntimeSession_Call{Call: _e.mock.On("UpdateRuntimeSession", ctx, session)}
+}
+
+func (_c *MockRepository_UpdateRuntimeSession_Call) Run(run func(ctx context.Context, session *domain.RuntimeSession)) *MockRepository_UpdateRuntimeSession_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 *domain.RuntimeSession
+		if args[1] != nil {
+			arg1 = args[1].(*domain.RuntimeSession)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockRepository_UpdateRuntimeSession_Call) Return(err error) *MockRepository_UpdateRuntimeSession_Call {
+	_c.Call.Return(err)
+	return _c
+}
+
+func (_c *MockRepository_UpdateRuntimeSession_Call) RunAndReturn(run func(ctx context.Context, session *domain.RuntimeSession) error) *MockRepository_UpdateRuntimeSession_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// UpdateUsersRole provides a mock function for the type MockRepository
+func (_mock *MockRepository) UpdateUsersRole(ctx context.Context, role domain.UserRole) error {
+	ret := _mock.Called(ctx, role)
+
+	if len(ret) == 0 {
+		panic("no return value specified for UpdateUsersRole")
+	}
+
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.UserRole) error); ok {
+		r0 = returnFunc(ctx, role)
+	} else {
+		r0 = ret.Error(0)
+	}
+	return r0
+}
+
+// MockRepository_UpdateUsersRole_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdateUsersRole'
+type MockRepository_UpdateUsersRole_Call struct {
+	*mock.Call
+}
+
+// UpdateUsersRole is a helper method to define mock.On call
+//   - ctx context.Context
+//   - role domain.UserRole
+func (_e *MockRepository_Expecter) UpdateUsersRole(ctx any, role any) *MockRepository_UpdateUsersRole_Call {
+	return &MockRepository_UpdateUsersRole_Call{Call: _e.mock.On("UpdateUsersRole", ctx, role)}
+}
+
+func (_c *MockRepository_UpdateUsersRole_Call) Run(run func(ctx context.Context, role domain.UserRole)) *MockRepository_UpdateUsersRole_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 domain.UserRole
+		if args[1] != nil {
+			arg1 = args[1].(domain.UserRole)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockRepository_UpdateUsersRole_Call) Return(err error) *MockRepository_UpdateUsersRole_Call {
+	_c.Call.Return(err)
+	return _c
+}
+
+func (_c *MockRepository_UpdateUsersRole_Call) RunAndReturn(run func(ctx context.Context, role domain.UserRole) error) *MockRepository_UpdateUsersRole_Call {
 	_c.Call.Return(run)
 	return _c
 }

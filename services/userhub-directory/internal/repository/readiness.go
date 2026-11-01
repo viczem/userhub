@@ -11,7 +11,7 @@ const readinessTimeout = 2 * time.Second
 var errNotAcceptingWork = errors.New("service is not accepting work")
 
 // Ready reports whether the database can serve work before its deadline.
-func (db *Repository) Ready(ctx context.Context) error {
+func (db *Database) Ready(ctx context.Context) error {
 	if !db.accepting.Load() {
 		return errNotAcceptingWork
 	}
@@ -31,6 +31,6 @@ func (db *Repository) Ready(ctx context.Context) error {
 }
 
 // StopReadiness prevents this database from reporting ready during shutdown.
-func (db *Repository) StopReadiness() {
+func (db *Database) StopReadiness() {
 	db.accepting.Store(false)
 }

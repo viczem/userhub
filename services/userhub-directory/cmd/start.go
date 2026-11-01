@@ -21,11 +21,7 @@ func start(cfg *config.Config) error {
 		return fmt.Errorf("open database: %w", err)
 	}
 
-	defer func() {
-		if err := db.Close(); err != nil {
-			slog.Error("close", slog.String("tag", "database"), slog.String("error", err.Error()))
-		}
-	}()
+	defer db.Close()
 
 	if err := db.Ready(context.Background()); err != nil {
 		slog.Warn("database unavailable during startup", slog.String("tag", "database"))

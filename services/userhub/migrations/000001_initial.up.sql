@@ -101,35 +101,33 @@ CREATE INDEX sessions_expires_at_idx ON sessions (expires_at);
 
 CREATE TABLE roles
 (
-    name        VARCHAR(100) PRIMARY KEY,
-    description TEXT    NOT NULL DEFAULT '',
-    is_default  BOOLEAN NOT NULL DEFAULT FALSE,
-
-    CHECK (name ~ '^[a-z][a-z0-9_]*$')
+    id          INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    name        VARCHAR(100) NOT NULL UNIQUE,
+    description TEXT NOT NULL DEFAULT '',
+    CHECK (name ~ '^[a-z][a-z0-9]*(-[a-z0-9]+)*$')
 );
 
-CREATE UNIQUE INDEX roles_single_default_idx ON roles (is_default) WHERE is_default;
 
 
 CREATE TABLE account_roles
 (
-    account_id UUID         NOT NULL,
-    role       VARCHAR(100) NOT NULL,
+    account_id UUID    NOT NULL,
+    role_id    INTEGER NOT NULL,
 
-    PRIMARY KEY (account_id, role),
+    PRIMARY KEY (account_id, role_id),
 
     FOREIGN KEY (account_id)
         REFERENCES accounts (id)
         ON DELETE CASCADE
         ON UPDATE RESTRICT,
 
-    FOREIGN KEY (role)
-        REFERENCES roles (name)
+    FOREIGN KEY (role_id)
+        REFERENCES roles (id)
         ON DELETE RESTRICT
         ON UPDATE RESTRICT
 );
 
-CREATE INDEX account_roles_role_idx ON account_roles (role);
+CREATE INDEX account_roles_role_id_idx ON account_roles (role_id);
 
 
 CREATE TABLE account_registrations

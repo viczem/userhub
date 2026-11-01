@@ -6,7 +6,49 @@ import (
 	"strings"
 
 	"github.com/viczem/userhub/services/userhub/internal/config"
+	"github.com/viczem/userhub/services/userhub/internal/domain"
 )
+
+func (s *restSuite) TestValidateConfigSessionMiddleware() {
+	for _, tc := range []struct {
+		name  string
+		token string
+		want  string
+	}{
+		{name: "missing token"},
+		{name: "whitespace token", token: " \t "},
+		{name: "token", token: "config-token", want: "config-token"},
+		{name: "trimmed token", token: " \t config-token \t ", want: "config-token"},
+	} {
+		s.Run(tc.name, func() {
+			called := false
+			handler := validateConfigSessionMiddleware()(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				called = true
+				s.Equal(tc.want, r.Context().Value(domain.ConfigSessionTokenKey{}))
+				w.WriteHeader(http.StatusNoContent)
+			}))
+			request := httptest.NewRequest(http.MethodGet, "/api/config/test", nil).WithContext(s.T().Context())
+			if tc.token != "" {
+				request.Header.Set("X-UserHub-Key", tc.token)
+			}
+			response := httptest.NewRecorder()
+
+			handler.ServeHTTP(response, request)
+
+			if tc.want == "" {
+				s.Equal(http.StatusNotFound, response.Code)
+				s.Equal("application/json", response.Header().Get("Content-Type"))
+				s.Empty(response.Body.String())
+				s.False(called)
+				return
+			}
+
+			s.Equal(http.StatusNoContent, response.Code)
+			s.Empty(response.Body.String())
+			s.True(called)
+		})
+	}
+}
 
 func (s *restSuite) TestBodyAtLimit() {
 	s.srv.EXPECT().HealthReady().Return(true).Once()
@@ -46,7 +88,8 @@ func (s *restSuite) TestProductionRecoversPanic() {
 	response := s.request(http.MethodGet, "/health/ready", nil)
 
 	s.Equal(http.StatusInternalServerError, response.Code)
-	s.Equal("Internal Server Error\n", response.Body.String())
+	s.Equal("application/json", response.Header().Get("Content-Type"))
+	s.Empty(response.Body.String())
 }
 
 func (s *restSuite) TestDevelopmentPropagatesPanic() {

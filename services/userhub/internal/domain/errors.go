@@ -104,3 +104,18 @@ func WrapError(err error, message string) *Error {
 func WrapErrorf(err error, format string, args ...any) *Error {
 	return WrapError(err, fmt.Sprintf(format, args...))
 }
+
+// Predefined errors are ErrorKind values and can be checked with errors.Is:
+//
+//	if errors.Is(err, ErrConfigSession) {
+//		// Handle a config session error.
+//	}
+const (
+	ErrConfigSession ErrorKind = "config session"
+)
+
+// General errors that do not belong to a specific error kind.
+var (
+	ErrUsersRoleConflict = NewError("User role already exists")
+	ErrUsersRoleNotFound = NewError("User role not found")
+)

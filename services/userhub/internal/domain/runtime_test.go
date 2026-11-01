@@ -70,6 +70,211 @@ func TestNewRuntimeSession(t *testing.T) {
 	}
 }
 
+func TestRuntimeSessionValidate(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name        string
+		modify      func(*RuntimeSession, *Keyring)
+		wantMessage string
+		wantKeyErr  bool
+	}{
+		{name: "valid session"},
+		{
+			name: "previous key after rotation",
+			modify: func(_ *RuntimeSession, ring *Keyring) {
+				ring.ActiveID = 8
+				ring.Keys[8] = [KeyringKeySize]byte{8}
+			},
+		},
+		{
+			name: "empty token",
+			modify: func(s *RuntimeSession, _ *Keyring) {
+				s.Token = ""
+			},
+			wantMessage: "token is empty",
+		},
+		{
+			name: "empty token HMAC",
+			modify: func(s *RuntimeSession, _ *Keyring) {
+				s.TokenHMAC = ""
+			},
+			wantMessage: "token HMAC is empty",
+		},
+		{
+			name: "idle timeout expired",
+			modify: func(s *RuntimeSession, _ *Keyring) {
+				s.ExpiresAt = time.Now().Add(-time.Hour)
+			},
+			wantMessage: "expired",
+		},
+		{
+			name: "TTL expired",
+			modify: func(s *RuntimeSession, _ *Keyring) {
+				s.ValidUntil = time.Now().Add(-time.Hour)
+			},
+			wantMessage: "valid until expired",
+		},
+		{
+			name: "unknown key ID",
+			modify: func(s *RuntimeSession, _ *Keyring) {
+				s.TokenKeyID = 99
+			},
+			wantMessage: "invalid key",
+			wantKeyErr:  true,
+		},
+		{
+			name: "empty keyring",
+			modify: func(_ *RuntimeSession, ring *Keyring) {
+				*ring = Keyring{}
+			},
+			wantMessage: "invalid key",
+			wantKeyErr:  true,
+		},
+		{
+			name: "tampered token",
+			modify: func(s *RuntimeSession, _ *Keyring) {
+				s.Token += "tampered"
+			},
+			wantMessage: "token mismatch",
+		},
+		{
+			name: "tampered token HMAC",
+			modify: func(s *RuntimeSession, _ *Keyring) {
+				s.TokenHMAC = "invalid HMAC"
+			},
+			wantMessage: "token mismatch",
+		},
+		{
+			name: "wrong key material",
+			modify: func(s *RuntimeSession, ring *Keyring) {
+				ring.Keys[s.TokenKeyID] = [KeyringKeySize]byte{}
+			},
+			wantMessage: "token mismatch",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			keyring, _ := newRuntimeSessionTestKeyring(7)
+			session, err := NewRuntimeSession(keyring, time.Hour, 2*time.Hour)
+			if err != nil {
+				t.Fatalf("NewRuntimeSession() error = %v", err)
+			}
+			if tt.modify != nil {
+				tt.modify(session, &keyring)
+			}
+			before := *session
+
+			err = session.Validate(keyring)
+			if tt.wantMessage == "" {
+				if err != nil {
+					t.Fatalf("Validate() error = %v, want nil", err)
+				}
+			} else {
+				if !errors.Is(err, ErrConfigSession) {
+					t.Fatalf("Validate() error = %v, want ErrConfigSession", err)
+				}
+
+				var domainErr *Error
+				if !errors.As(err, &domainErr) || domainErr.Message != tt.wantMessage {
+					t.Errorf("Validate() error = %v, want message %q", err, tt.wantMessage)
+				}
+			}
+			if errors.Is(err, ErrKeyring) != tt.wantKeyErr {
+				t.Errorf("errors.Is(Validate() error, ErrKeyring) = %v, want %v", errors.Is(err, ErrKeyring), tt.wantKeyErr)
+			}
+			if *session != before {
+				t.Error("Validate() modified the session")
+			}
+		})
+	}
+}
+
+func TestRuntimeSessionProlong(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name        string
+		expiresIn   time.Duration
+		validFor    time.Duration
+		idleTimeout time.Duration
+		wantErr     bool
+	}{
+		{
+			name:        "extends idle expiration",
+			expiresIn:   time.Minute,
+			validFor:    time.Hour,
+			idleTimeout: 5 * time.Minute,
+		},
+		{
+			name:        "resets expiration from current time",
+			expiresIn:   30 * time.Minute,
+			validFor:    time.Hour,
+			idleTimeout: 5 * time.Minute,
+		},
+		{
+			name:        "idle timeout exceeds TTL",
+			expiresIn:   time.Minute,
+			validFor:    2 * time.Minute,
+			idleTimeout: 5 * time.Minute,
+			wantErr:     true,
+		},
+		{
+			name:        "TTL already expired",
+			expiresIn:   -2 * time.Hour,
+			validFor:    -time.Hour,
+			idleTimeout: 5 * time.Minute,
+			wantErr:     true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			now := time.Now()
+			session := RuntimeSession{
+				Token:      "token",
+				TokenHMAC:  "HMAC",
+				TokenKeyID: 7,
+				ExpiresAt:  now.Add(tt.expiresIn),
+				ValidUntil: now.Add(tt.validFor),
+			}
+			original := session
+			before := time.Now()
+			err := session.Prolong(tt.idleTimeout)
+			after := time.Now()
+
+			if tt.wantErr {
+				if !errors.Is(err, ErrConfigSession) {
+					t.Fatalf("Prolong() error = %v, want ErrConfigSession", err)
+				}
+
+				var domainErr *Error
+				if !errors.As(err, &domainErr) || domainErr.Message != "prolongation expired" {
+					t.Errorf("Prolong() error = %v, want message %q", err, "prolongation expired")
+				}
+			} else if err != nil {
+				t.Fatalf("Prolong() error = %v, want nil", err)
+			}
+
+			if !tt.wantErr && (session.ExpiresAt.Before(before.Add(tt.idleTimeout)) || session.ExpiresAt.After(after.Add(tt.idleTimeout))) {
+				t.Errorf("ExpiresAt = %v, want between %v and %v", session.ExpiresAt, before.Add(tt.idleTimeout), after.Add(tt.idleTimeout))
+			}
+			if !tt.wantErr && session.ExpiresAt.After(session.ValidUntil) {
+				t.Error("Prolong() expiration exceeds ValidUntil")
+			}
+			session.ExpiresAt = original.ExpiresAt
+			if session != original {
+				t.Error("Prolong() modified fields other than ExpiresAt")
+			}
+		})
+	}
+}
+
 func TestNewRuntimeSessionReturnsActiveKeyError(t *testing.T) {
 	t.Parallel()
 

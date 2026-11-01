@@ -9,6 +9,16 @@ services:
       POSTGRES_USER: userhub
       POSTGRES_PASSWORD: userhub
       POSTGRES_DB: userhub
+    command:
+      - postgres
+      - -c
+      - log_statement=all
+      - -c
+      - shared_preload_libraries=pg_stat_statements
+      - -c
+      - pg_stat_statements.track=all
+      - -c
+      - pg_stat_statements.max=5000
     volumes:
       - pgdata:/var/lib/postgresql
     logging:

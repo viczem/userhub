@@ -2,14 +2,18 @@ package rest
 
 import (
 	"bytes"
+	"context"
 	"errors"
 	"io"
 	"log/slog"
 	"net/http"
+	"strings"
 	"time"
+	"uuid"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/viczem/userhub/services/userhub/internal/domain"
 )
 
 func maxBodyBytesMiddleware(maxBodyBytes int) func(next http.Handler) http.Handler {
@@ -46,10 +50,30 @@ func maxBodyBytesMiddleware(maxBodyBytes int) func(next http.Handler) http.Handl
 	}
 }
 
+func requestIDMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
+		requestID := middleware.GetReqID(ctx)
+
+		if requestID == "" {
+			requestID = uuid.NewV4().String()
+			ctx = context.WithValue(ctx, middleware.RequestIDKey, requestID)
+		}
+
+		w.Header().Set("X-Request-ID", requestID)
+		next.ServeHTTP(w, r.WithContext(ctx))
+	})
+}
+
 func loggerMiddleware() func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		fn := func(w http.ResponseWriter, r *http.Request) {
 			ww := middleware.NewWrapResponseWriter(w, r.ProtoMajor)
+
+			var clientIPAttr slog.Attr
+			if ip := middleware.GetClientIPAddr(r.Context()); ip.IsValid() {
+				clientIPAttr = slog.String("ip", ip.String())
+			}
 
 			start := time.Now()
 
@@ -60,12 +84,12 @@ func loggerMiddleware() func(next http.Handler) http.Handler {
 				}
 
 				slog.InfoContext(r.Context(), "http request",
+					clientIPAttr,
 					slog.String("method", r.Method),
 					slog.String("route", route),
 					slog.Int("status", ww.Status()),
 					slog.Int("bytes", ww.BytesWritten()),
 					slog.Int64("time", time.Since(start).Milliseconds()),
-					slog.String("request_id", middleware.GetReqID(r.Context())),
 					"tag", "rest",
 				)
 			}()
@@ -86,10 +110,27 @@ func recovererMiddleware() func(next http.Handler) http.Handler {
 				}
 
 				slog.ErrorContext(r.Context(), "handler panic", "tag", "rest")
-				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+				writeJSON(w, r, http.StatusInternalServerError, nil)
 			}()
 
 			next.ServeHTTP(w, r)
+		})
+	}
+}
+
+func validateConfigSessionMiddleware() func(next http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			token := r.Header.Get("X-UserHub-Key")
+			token = strings.TrimSpace(token)
+			if token == "" {
+				slog.ErrorContext(r.Context(), "missing token")
+				writeJSON(w, r, http.StatusNotFound, nil)
+				return
+			}
+
+			ctx := context.WithValue(r.Context(), domain.ConfigSessionTokenKey{}, token)
+			next.ServeHTTP(w, r.WithContext(ctx))
 		})
 	}
 }

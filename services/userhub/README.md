@@ -93,27 +93,28 @@ Runtime configuration is environment-only. Commands load only their required
 settings. Invalid values fail command startup without exposing the supplied
 value; configuration-session timing errors identify the variable and constraint.
 
-| Variable                         | Required | Default      | Purpose and constraint                                                                                                                |
-| -------------------------------- | -------- | ------------ | ------------------------------------------------------------------------------------------------------------------------------------- |
-| `APP_ENV`                        | no       | `production` | `production` or `development`                                                                                                         |
-| `HTTP_ADDR`                      | no       | `:8080`      | TCP host and numeric port 1-65535                                                                                                     |
-| `HTTP_MAX_HEADER_BYTES`          | no       | `16384`      | Maximum HTTP header bytes; at least `4096`                                                                                            |
-| `HTTP_MAX_BODY_BYTES`            | no       | `65536`      | Maximum request body bytes; at least `8192`                                                                                           |
-| `HTTP_WRITE_TIMEOUT`             | no       | `10s`        | HTTP write timeout; at least `1s`                                                                                                     |
-| `HTTP_READ_TIMEOUT`              | no       | `5s`         | HTTP read timeout; at least `1s`                                                                                                      |
-| `HTTP_READ_HEADER_TIMEOUT`       | no       | `2s`         | HTTP header timeout; at least `1s`                                                                                                    |
-| `HTTP_IDLE_TIMEOUT`              | no       | `30s`        | HTTP idle timeout; at least `1s`                                                                                                      |
-| `HTTP_GRACEFUL_SHUTDOWN_TIMEOUT` | no       | `30s`        | Complete shutdown bound; at least `1s`                                                                                                |
-| `DB_URL`                         | yes      | none         | Direct PostgreSQL connection URL for migrations and default runtime traffic                                                           |
-| `DB_URL_POOL`                    | no       | empty        | Authoritative pooled runtime PostgreSQL URL                                                                                           |
-| `KEYRING_HMAC`                   | yes      | none         | HMAC keyring; one positive active ID and zero or more negative retained IDs; each key is sensitive Base64URL-encoded 32-byte material |
-| `KEYRING_ENCRYPTION`             | yes      | none         | AES-256-GCM keyring in the same format; key material must not be shared with `KEYRING_HMAC`                                           |
-| `DB_MAX_OPEN_CONNS`              | no       | `20`         | Maximum connections per process; at least `1`                                                                                         |
-| `DB_MIN_CONNS`                   | no       | `2`          | Minimum connections; nonnegative and no greater than maximum                                                                          |
-| `DB_CONN_MAX_LIFETIME`           | no       | `0`          | Maximum connection lifetime; `0` means unlimited                                                                                      |
-| `DB_CONN_MAX_IDLE_TIME`          | no       | `0`          | Maximum idle time; `0` means unlimited                                                                                                |
-| `CONFIG_SESSION_IDLE_TIMEOUT`    | no       | `5m`         | Positive Go duration for initial configuration-session inactivity; must not exceed `CONFIG_SESSION_TTL`                               |
-| `CONFIG_SESSION_TTL`             | no       | `30m`        | Positive Go duration for the configuration-session absolute lifetime; must be at least the inactivity timeout                         |
+| Variable                         | Required | Default         | Purpose and constraint                                                                                                                |
+| -------------------------------- | -------- | --------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| `APP_ENV`                        | no       | `production`    | `production` or `development`                                                                                                         |
+| `HTTP_ADDR`                      | no       | `:8080`         | TCP host and numeric port 1-65535                                                                                                     |
+| `HTTP_MAX_HEADER_BYTES`          | no       | `16384`         | Maximum HTTP header bytes; at least `4096`                                                                                            |
+| `HTTP_MAX_BODY_BYTES`            | no       | `65536`         | Maximum request body bytes; at least `8192`                                                                                           |
+| `HTTP_WRITE_TIMEOUT`             | no       | `10s`           | HTTP write timeout; at least `1s`                                                                                                     |
+| `HTTP_READ_TIMEOUT`              | no       | `5s`            | HTTP read timeout; at least `1s`                                                                                                      |
+| `HTTP_READ_HEADER_TIMEOUT`       | no       | `2s`            | HTTP header timeout; at least `1s`                                                                                                    |
+| `HTTP_IDLE_TIMEOUT`              | no       | `30s`           | HTTP idle timeout; at least `1s`                                                                                                      |
+| `HTTP_GRACEFUL_SHUTDOWN_TIMEOUT` | no       | `30s`           | Complete shutdown bound; at least `1s`                                                                                                |
+| `DB_URL`                         | yes      | none            | Direct PostgreSQL connection URL for migrations and default runtime traffic                                                           |
+| `DB_URL_POOL`                    | no       | empty           | Authoritative pooled runtime PostgreSQL URL                                                                                           |
+| `KEYRING_HMAC`                   | yes      | none            | HMAC keyring; one positive active ID and zero or more negative retained IDs; each key is sensitive Base64URL-encoded 32-byte material |
+| `KEYRING_ENCRYPTION`             | yes      | none            | AES-256-GCM keyring in the same format; key material must not be shared with `KEYRING_HMAC`                                           |
+| `DB_MAX_OPEN_CONNS`              | no       | `20`            | Maximum connections per process; at least `1`                                                                                         |
+| `DB_MIN_CONNS`                   | no       | `2`             | Minimum connections; nonnegative and no greater than maximum                                                                          |
+| `DB_CONN_MAX_LIFETIME`           | no       | `0`             | Maximum connection lifetime; `0` means unlimited                                                                                      |
+| `DB_CONN_MAX_IDLE_TIME`          | no       | `0`             | Maximum idle time; `0` means unlimited                                                                                                |
+| `CONFIG_SESSION_IDLE_TIMEOUT`    | no       | `5m`            | Positive Go duration for initial configuration-session inactivity; must not exceed `CONFIG_SESSION_TTL`                               |
+| `CONFIG_SESSION_TTL`             | no       | `30m`           | Positive Go duration for the configuration-session absolute lifetime; must be at least the inactivity timeout                         |
+| `CONFIG_SESSION_HEADER`          | no       | `X-UserHub-Key` | HTTP header name for configuration-session key                                                                                        |
 
 ## Keyring Generation And Rotation
 

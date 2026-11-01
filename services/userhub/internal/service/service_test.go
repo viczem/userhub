@@ -43,8 +43,8 @@ func (s *serviceSuite) SetupTest() {
 func (s *serviceSuite) assertRuntimeError(err, cause error, kind domain.ErrorKind, message string) {
 	s.T().Helper()
 	s.Require().Error(err)
-	s.ErrorIs(err, cause)
-	s.ErrorIs(err, kind)
+	s.Require().ErrorIs(err, cause)
+	s.Require().ErrorIs(err, kind)
 
 	var domainErr *domain.Error
 	s.Require().ErrorAs(err, &domainErr)

@@ -50,6 +50,7 @@ type Config struct {
 	KeyringEncryption        domain.Keyring `env:"KEYRING_ENCRYPTION,required"`
 	ConfigSessionIdleTimeout time.Duration  `env:"CONFIG_SESSION_IDLE_TIMEOUT" envDefault:"5m"`
 	ConfigSessionTTL         time.Duration  `env:"CONFIG_SESSION_TTL" envDefault:"30m"`
+	ConfigSessionHeader      string         `env:"CONFIG_SESSION_HEADER" envDefault:"X-UserHub-Key"`
 }
 
 // NewConfig parses and validates UserHub Service configuration from the environment.

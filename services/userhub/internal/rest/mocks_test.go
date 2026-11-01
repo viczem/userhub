@@ -5,7 +5,11 @@
 package rest
 
 import (
+	"context"
+
 	mock "github.com/stretchr/testify/mock"
+	"github.com/viczem/userhub/services/userhub/internal/domain"
+	service0 "github.com/viczem/userhub/services/userhub/internal/service"
 )
 
 // NewMockservice creates a new instance of Mockservice. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
@@ -42,6 +46,129 @@ type Mockservice_Expecter struct {
 
 func (_m *Mockservice) EXPECT() *Mockservice_Expecter {
 	return &Mockservice_Expecter{mock: &_m.Mock}
+}
+
+// CreateUsersRole provides a mock function for the type Mockservice
+func (_mock *Mockservice) CreateUsersRole(ctx context.Context, role domain.UserRole) (domain.UserRole, error) {
+	ret := _mock.Called(ctx, role)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CreateUsersRole")
+	}
+
+	var r0 domain.UserRole
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.UserRole) (domain.UserRole, error)); ok {
+		return returnFunc(ctx, role)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.UserRole) domain.UserRole); ok {
+		r0 = returnFunc(ctx, role)
+	} else {
+		r0 = ret.Get(0).(domain.UserRole)
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, domain.UserRole) error); ok {
+		r1 = returnFunc(ctx, role)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// Mockservice_CreateUsersRole_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CreateUsersRole'
+type Mockservice_CreateUsersRole_Call struct {
+	*mock.Call
+}
+
+// CreateUsersRole is a helper method to define mock.On call
+//   - ctx context.Context
+//   - role domain.UserRole
+func (_e *Mockservice_Expecter) CreateUsersRole(ctx any, role any) *Mockservice_CreateUsersRole_Call {
+	return &Mockservice_CreateUsersRole_Call{Call: _e.mock.On("CreateUsersRole", ctx, role)}
+}
+
+func (_c *Mockservice_CreateUsersRole_Call) Run(run func(ctx context.Context, role domain.UserRole)) *Mockservice_CreateUsersRole_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 domain.UserRole
+		if args[1] != nil {
+			arg1 = args[1].(domain.UserRole)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *Mockservice_CreateUsersRole_Call) Return(userRole domain.UserRole, err error) *Mockservice_CreateUsersRole_Call {
+	_c.Call.Return(userRole, err)
+	return _c
+}
+
+func (_c *Mockservice_CreateUsersRole_Call) RunAndReturn(run func(ctx context.Context, role domain.UserRole) (domain.UserRole, error)) *Mockservice_CreateUsersRole_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// DeleteUsersRole provides a mock function for the type Mockservice
+func (_mock *Mockservice) DeleteUsersRole(ctx context.Context, roleID int32) error {
+	ret := _mock.Called(ctx, roleID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for DeleteUsersRole")
+	}
+
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, int32) error); ok {
+		r0 = returnFunc(ctx, roleID)
+	} else {
+		r0 = ret.Error(0)
+	}
+	return r0
+}
+
+// Mockservice_DeleteUsersRole_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'DeleteUsersRole'
+type Mockservice_DeleteUsersRole_Call struct {
+	*mock.Call
+}
+
+// DeleteUsersRole is a helper method to define mock.On call
+//   - ctx context.Context
+//   - roleID int32
+func (_e *Mockservice_Expecter) DeleteUsersRole(ctx any, roleID any) *Mockservice_DeleteUsersRole_Call {
+	return &Mockservice_DeleteUsersRole_Call{Call: _e.mock.On("DeleteUsersRole", ctx, roleID)}
+}
+
+func (_c *Mockservice_DeleteUsersRole_Call) Run(run func(ctx context.Context, roleID int32)) *Mockservice_DeleteUsersRole_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 int32
+		if args[1] != nil {
+			arg1 = args[1].(int32)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *Mockservice_DeleteUsersRole_Call) Return(err error) *Mockservice_DeleteUsersRole_Call {
+	_c.Call.Return(err)
+	return _c
+}
+
+func (_c *Mockservice_DeleteUsersRole_Call) RunAndReturn(run func(ctx context.Context, roleID int32) error) *Mockservice_DeleteUsersRole_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // HealthReady provides a mock function for the type Mockservice
@@ -84,6 +211,140 @@ func (_c *Mockservice_HealthReady_Call) Return(b bool) *Mockservice_HealthReady_
 }
 
 func (_c *Mockservice_HealthReady_Call) RunAndReturn(run func() bool) *Mockservice_HealthReady_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// PatchUsersRole provides a mock function for the type Mockservice
+func (_mock *Mockservice) PatchUsersRole(ctx context.Context, roleID int32, patch service0.UserRolePatch) (domain.UserRole, error) {
+	ret := _mock.Called(ctx, roleID, patch)
+
+	if len(ret) == 0 {
+		panic("no return value specified for PatchUsersRole")
+	}
+
+	var r0 domain.UserRole
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, int32, service0.UserRolePatch) (domain.UserRole, error)); ok {
+		return returnFunc(ctx, roleID, patch)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, int32, service0.UserRolePatch) domain.UserRole); ok {
+		r0 = returnFunc(ctx, roleID, patch)
+	} else {
+		r0 = ret.Get(0).(domain.UserRole)
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, int32, service0.UserRolePatch) error); ok {
+		r1 = returnFunc(ctx, roleID, patch)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// Mockservice_PatchUsersRole_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'PatchUsersRole'
+type Mockservice_PatchUsersRole_Call struct {
+	*mock.Call
+}
+
+// PatchUsersRole is a helper method to define mock.On call
+//   - ctx context.Context
+//   - roleID int32
+//   - patch service0.UserRolePatch
+func (_e *Mockservice_Expecter) PatchUsersRole(ctx any, roleID any, patch any) *Mockservice_PatchUsersRole_Call {
+	return &Mockservice_PatchUsersRole_Call{Call: _e.mock.On("PatchUsersRole", ctx, roleID, patch)}
+}
+
+func (_c *Mockservice_PatchUsersRole_Call) Run(run func(ctx context.Context, roleID int32, patch service0.UserRolePatch)) *Mockservice_PatchUsersRole_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 int32
+		if args[1] != nil {
+			arg1 = args[1].(int32)
+		}
+		var arg2 service0.UserRolePatch
+		if args[2] != nil {
+			arg2 = args[2].(service0.UserRolePatch)
+		}
+		run(
+			arg0,
+			arg1,
+			arg2,
+		)
+	})
+	return _c
+}
+
+func (_c *Mockservice_PatchUsersRole_Call) Return(userRole domain.UserRole, err error) *Mockservice_PatchUsersRole_Call {
+	_c.Call.Return(userRole, err)
+	return _c
+}
+
+func (_c *Mockservice_PatchUsersRole_Call) RunAndReturn(run func(ctx context.Context, roleID int32, patch service0.UserRolePatch) (domain.UserRole, error)) *Mockservice_PatchUsersRole_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// ReadUsersRoles provides a mock function for the type Mockservice
+func (_mock *Mockservice) ReadUsersRoles(ctx context.Context) ([]domain.UserRole, error) {
+	ret := _mock.Called(ctx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ReadUsersRoles")
+	}
+
+	var r0 []domain.UserRole
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context) ([]domain.UserRole, error)); ok {
+		return returnFunc(ctx)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context) []domain.UserRole); ok {
+		r0 = returnFunc(ctx)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]domain.UserRole)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context) error); ok {
+		r1 = returnFunc(ctx)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// Mockservice_ReadUsersRoles_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ReadUsersRoles'
+type Mockservice_ReadUsersRoles_Call struct {
+	*mock.Call
+}
+
+// ReadUsersRoles is a helper method to define mock.On call
+//   - ctx context.Context
+func (_e *Mockservice_Expecter) ReadUsersRoles(ctx any) *Mockservice_ReadUsersRoles_Call {
+	return &Mockservice_ReadUsersRoles_Call{Call: _e.mock.On("ReadUsersRoles", ctx)}
+}
+
+func (_c *Mockservice_ReadUsersRoles_Call) Run(run func(ctx context.Context)) *Mockservice_ReadUsersRoles_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		run(
+			arg0,
+		)
+	})
+	return _c
+}
+
+func (_c *Mockservice_ReadUsersRoles_Call) Return(userRoles []domain.UserRole, err error) *Mockservice_ReadUsersRoles_Call {
+	_c.Call.Return(userRoles, err)
+	return _c
+}
+
+func (_c *Mockservice_ReadUsersRoles_Call) RunAndReturn(run func(ctx context.Context) ([]domain.UserRole, error)) *Mockservice_ReadUsersRoles_Call {
 	_c.Call.Return(run)
 	return _c
 }

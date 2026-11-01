@@ -19,14 +19,21 @@ func main() {
 		os.Exit(1)
 	}
 
+	var handler slog.Handler
+
 	if cfg.AppEnv == config.AppEnvDevelopment {
-		slog.SetDefault(slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug})))
+		handler = slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
+			Level: slog.LevelDebug,
+		})
 	} else {
-		slog.SetDefault(slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo})))
+		handler = slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
+			Level: slog.LevelInfo,
+		})
 	}
 
-	cmd := newCommand(cfg)
+	slog.SetDefault(slog.New(newRequestIDHandler(handler)))
 
+	cmd := newCommand(cfg)
 	if err := cmd.Run(context.Background(), os.Args); err != nil {
 		slog.Error("command failed", "error", err)
 		os.Exit(1)

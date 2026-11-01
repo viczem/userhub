@@ -35,7 +35,18 @@ func (s *restSuite) SetupTest() {
 func (s *restSuite) request(method, target string, body io.Reader) *httptest.ResponseRecorder {
 	s.T().Helper()
 
+	return s.requestWithHeaders(method, target, body, nil)
+}
+
+func (s *restSuite) requestWithHeaders(method, target string, body io.Reader, headers http.Header) *httptest.ResponseRecorder {
+	s.T().Helper()
+
 	request := httptest.NewRequest(method, target, body).WithContext(s.T().Context())
+	for name, values := range headers {
+		for _, value := range values {
+			request.Header.Add(name, value)
+		}
+	}
 	response := httptest.NewRecorder()
 	s.api.ServeHTTP(response, request)
 

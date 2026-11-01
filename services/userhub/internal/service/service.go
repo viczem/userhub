@@ -10,6 +10,7 @@ import (
 // Repository defines operations bound to one transaction.
 type Repository interface {
 	runtimeRepository
+	configRepository
 	Commit(ctx context.Context) error
 	Rollback(ctx context.Context) error
 	Close(ctx context.Context)

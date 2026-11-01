@@ -25,6 +25,52 @@ type RuntimeSession struct {
 	ValidUntil time.Time
 }
 
+// Validate checks that the runtime session is unexpired and its token HMAC is valid.
+func (s *RuntimeSession) Validate(keyringHMAC Keyring) error {
+	if s.Token == "" {
+		return ErrConfigSession.NewError("token is empty")
+	}
+
+	if s.TokenHMAC == "" {
+		return ErrConfigSession.NewError("token HMAC is empty")
+	}
+
+	if time.Now().After(s.ExpiresAt) {
+		return ErrConfigSession.NewError("expired")
+	}
+
+	if time.Now().After(s.ValidUntil) {
+		return ErrConfigSession.NewError("valid until expired")
+	}
+
+	key, err := keyringHMAC.Key(s.TokenKeyID)
+	if err != nil {
+		return ErrConfigSession.WrapError(err, "invalid key")
+	}
+
+	mac := hmac.New(sha256.New, key)
+	mac.Write([]byte(runtimeSessionHMACPurpose))
+	mac.Write([]byte(s.Token))
+
+	if s.TokenHMAC != base64.RawURLEncoding.EncodeToString(mac.Sum(nil)) {
+		return ErrConfigSession.NewError("token mismatch")
+	}
+
+	return nil
+}
+
+// Prolong extends the session's expiration by the idle timeout, without
+// allowing it to expire after its ValidUntil time.
+func (s *RuntimeSession) Prolong(idleTimeout time.Duration) error {
+	s.ExpiresAt = time.Now().Add(idleTimeout)
+
+	if s.ExpiresAt.After(s.ValidUntil) {
+		return ErrConfigSession.NewError("prolongation expired")
+	}
+
+	return nil
+}
+
 func generateAPIKey(random io.Reader) (string, error) {
 	material := make([]byte, apiKeySize)
 	if _, err := io.ReadFull(random, material); err != nil {
